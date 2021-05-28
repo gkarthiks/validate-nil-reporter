@@ -67,19 +67,25 @@ function validateAndComment(stringToValidate, regEx, issueAuthor, context, label
         
         commentToIssue(bodyString, labelArray, githubToken)
     } else if (eventName.startsWith("issue_comment")) {
-        if (context == ISSUE_TITLE_CTX) {
-            isTitleInclusive = true;
-        }
-        if (context == ISSUE_DESC_CTX) {
-            isDescInclusive = true;
-        }
+        setContextBool(context)
         if (isDescInclusive && isTitleInclusive) {
             removeLabel(labelArray)
         }
     } else {
+        setContextBool(context)
         core.info("Hurray! The content is completely inclusive!!!");
     }
 
+}
+
+// Sets true for the title or description context if inclusive.
+function setContextBool(context) {
+    if (context == ISSUE_TITLE_CTX) {
+        isTitleInclusive = true;
+    }
+    if (context == ISSUE_DESC_CTX) {
+        isDescInclusive = true;
+    }
 }
 
 // reads the data of the file from the specified path,
