@@ -22,4 +22,3 @@ jobs:
         id: parseissue
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          labels: non-inclusive
