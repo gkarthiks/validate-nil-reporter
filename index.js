@@ -1,7 +1,14 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
-const _str = require('underscore.string')
+const _str = require('underscore.string');
+
+const ISSUE_TITLE_CTX = "issue title";
+const ISSUE_DESC_CTX = "issue description";
+
+var isLabelSet = false;
+var isTitleInclusive = false;
+var isDescInclusive = false;
 
 try {
     var eventName = github.context.eventName
@@ -28,8 +35,8 @@ try {
         core.info("Issue number: "+issueNumber)
         core.info("Issue title: "+issueTitle)
 
-        validateAndComment(issueTitle, regEx, issueAuthor, "issue title", labelArray, githubToken, eventName);
-        validateAndComment(issueContext, regEx, issueAuthor, "issue description", labelArray, githubToken, "");
+        validateAndComment(issueTitle, regEx, issueAuthor, ISSUE_TITLE_CTX, labelArray, githubToken, eventName);
+        validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, "");
     }
 
 } catch (error) {
@@ -41,15 +48,27 @@ try {
 function validateAndComment(stringToValidate, regEx, issueAuthor, context, labelArray, githubToken, eventName) {
     core.info("Validating the given string for non-inclusive language with regEx: "+regEx);
     var matchedNIL = stringToValidate.toLocaleLowerCase().match(regEx);
+    
     if (matchedNIL != null && matchedNIL.length > 0) {
         var deDupeMatchedNIL = new Set(matchedNIL);
         core.info("Got the following non-inclusive language in the context: "+[...deDupeMatchedNIL]);
         var bodyString = `Hi @`+issueAuthor.trim()+`, you have the following non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/
 
-        `+[...deDupeMatchedNIL]+`. After reformatting the statement, please comment /validate to validate your statements.`;
+        `+[...deDupeMatchedNIL]+`
+        
+        After reformatting the statement, please comment /validate to validate your statements.`;
+        
         commentToIssue(bodyString, labelArray, githubToken)
     } else if (eventName.startsWith("issue_comment")) {
-        removeLabel(labelArray)
+        if (context == ISSUE_TITLE_CTX) {
+            isTitleInclusive = true;
+        }
+        if (context == ISSUE_DESC_CTX) {
+            isDescInclusive = true;
+        }
+        if (isDescInclusive && isTitleInclusive) {
+            removeLabel(labelArray)
+        }
     } else {
         core.info("Hurray! The content is completely inclusive!!!");
     }
@@ -69,7 +88,11 @@ function readFileFrom(filePath) {
 
 // Commenting back to issue with provided message
 function commentToIssue(body, labelArray, githubToken) {
-    addLabel(labelArray, githubToken);
+    // Call to set the labels only if its not already set in the title validation
+    if (isLabelSet == false) {
+        addLabel(labelArray, githubToken);
+    }
+
     try {
         github.getOctokit(githubToken).rest.issues.createComment({
             issue_number: github.context.issue.number,
@@ -88,16 +111,28 @@ function commaSeperatedStrToArray(commaString) {
     return _str.words(commaString, ",").map(item => item.trim());
 }
 
+// Removes the specified non inclusive labels from the issue
 function removeLabel(labelArray) {
-
+    if (labelArray.length > 0) {
+        labelArray.forEach(function(label) {
+            try {
+                github.getOctokit(githubToken).rest.issues.removeLabel({
+                    owner: github.context.repo.owner,
+                    repo: github.context.repo.repo,
+                    issue_number: github.context.issue.number,
+                    name: label
+                });
+            } catch (e) {
+                console.error('Error occured while adding labels', e);
+                core.setFailed('Error occured while adding labels', e);
+            }
+        })
+    }
 }
 
-// Adds the specifies 
+// Adds the specific label to the issue
 function addLabel(labelArray, githubToken) {
     if (labelArray.length > 0) {
-        core.info("===============================================================================================");
-        core.info(labelArray, "\n", labelArray.length);
-        core.info("===============================================================================================");
         try {
             github.getOctokit(githubToken).rest.issues.addLabels({
                 owner: github.context.repo.owner,
@@ -105,6 +140,7 @@ function addLabel(labelArray, githubToken) {
                 issue_number: github.context.issue.number,
                 labels: labelArray
             });
+            isLabelSet = true;
         } catch (e) {
             console.error('Error occured while adding labels', e);
             core.setFailed('Error occured while adding labels', e);
