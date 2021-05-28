@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const fs = require('fs');
+const _str = require('underscore.string')
 
 try {
     var eventName = github.context.eventName
@@ -68,7 +69,7 @@ function readFileFrom(filePath) {
 
 // Commenting back to issue with provided message
 function commentToIssue(body, labelArray, githubToken) {
-    addLabel(body, labelArray, githubToken);
+    addLabel(labelArray, githubToken);
     try {
         github.getOctokit(githubToken).rest.issues.createComment({
             issue_number: github.context.issue.number,
@@ -84,7 +85,7 @@ function commentToIssue(body, labelArray, githubToken) {
 
 // Returns the comma seperated string into cleansed array of strings
 function commaSeperatedStrToArray(commaString) {
-    return commaString.split(",").map(item => item.trim());
+    return _str.words(commaString, ",").map(item => item.trim());
 }
 
 function removeLabel(labelArray) {
@@ -92,10 +93,8 @@ function removeLabel(labelArray) {
 }
 
 // Adds the specifies 
-function addLabel(body, labelArray, githubToken) {
-    if (!labelArray.length) {
-        core.info("Label is not specified");
-    } else {
+function addLabel(labelArray, githubToken) {
+    if (labelArray.length > 0) {
         core.info("===============================================================================================");
         core.info(labelArray, "\n", labelArray.length);
         core.info("===============================================================================================");
