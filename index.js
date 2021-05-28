@@ -93,7 +93,9 @@ function removeLabel(labelArray) {
 
 // Adds the specifies 
 function addLabel(body, labelArray, githubToken) {
-    if (labelArray.length  > 0) {
+    if (!labelArray.length) {
+        core.info("Label is not specified");
+    } else {
         core.info("===============================================================================================");
         core.info(labelArray, "\n", labelArray.length);
         core.info("===============================================================================================");
