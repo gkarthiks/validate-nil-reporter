@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Parse issue, scan and comment back for non-inclusive language
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: NIL Reporter
         uses: gkarthiks/nil-issue-reporter@0.2.0
         id: parseissue
