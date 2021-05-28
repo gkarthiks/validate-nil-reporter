@@ -15,9 +15,6 @@ try {
         var githubToken = core.getInput('token');
         var nilFileLoc = core.getInput("nil-file").trim();
         var commaSeperatedLbl = core.getInput("labels").trim();
-        core.info("=================================================");
-        core.info(commaSeperatedLbl.length);
-        core.info("===================================================================================================================================================");
         var labelArray = commaSeperatedStrToArray(commaSeperatedLbl);
         
         core.info("The NIL file picked up for comparative scan is from: "+nilFileLoc)
@@ -97,17 +94,16 @@ function removeLabel(labelArray) {
 // Adds the specifies 
 function addLabel(body, labelArray, githubToken) {
     if (Array.isArray(labelArray) && labelArray.length) {
-
-    }
-    try {
-        github.getOctokit(githubToken).rest.issues.addLabels({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            issue_number: github.context.issue.number,
-            labels: labelArray
-        });
-    } catch (e) {
-        console.error('Error occured while adding labels', e);
-        core.setFailed('Error occured while adding labels', e);
+        try {
+            github.getOctokit(githubToken).rest.issues.addLabels({
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
+                issue_number: github.context.issue.number,
+                labels: labelArray
+            });
+        } catch (e) {
+            console.error('Error occured while adding labels', e);
+            core.setFailed('Error occured while adding labels', e);
+        }
     }
 }
