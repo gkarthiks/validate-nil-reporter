@@ -16,7 +16,7 @@ try {
         var nilFileLoc = core.getInput("nil-file").trim();
         var commaSeperatedLbl = core.getInput("labels").trim();
         core.info("=================================================");
-        core.info(commaSeperatedLbl);
+        core.info(commaSeperatedLbl.length);
         core.info("===================================================================================================================================================");
         var labelArray = commaSeperatedStrToArray(commaSeperatedLbl);
         
