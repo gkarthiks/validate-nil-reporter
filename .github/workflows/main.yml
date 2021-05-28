@@ -7,7 +7,7 @@ on:
 
 jobs:
   parse-issue-and-create-pr:
-    if: github.event_name != 'push' && github.event_name != 'pull_request'
+    if: github.event_name != 'push' && github.event_name != 'pull_request' || contains(github.event.comment.body, '/validate')
     runs-on: ubuntu-latest
     name: Parse issue, scan and comment back for non-inclusive language
     steps:
