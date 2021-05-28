@@ -94,6 +94,9 @@ function removeLabel(labelArray) {
 // Adds the specifies 
 function addLabel(body, labelArray, githubToken) {
     if (Array.isArray(labelArray) && labelArray.length) {
+        core.info("===============================================================================================");
+        core.info(labelArray, "\n", labelArray.length);
+        core.info("===============================================================================================");
         try {
             github.getOctokit(githubToken).rest.issues.addLabels({
                 owner: github.context.repo.owner,
