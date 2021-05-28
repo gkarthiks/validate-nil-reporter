@@ -46,6 +46,13 @@ try {
 
 // Validates the provided string for non-inclusive language
 function validateAndComment(stringToValidate, regEx, issueAuthor, context, labelArray, githubToken, eventName) {
+
+    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> eventName: "+eventName);
+    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> context: "+context);
+    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> isDescInclusive: "+isDescInclusive);
+    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> isTitleInclusive: "+isTitleInclusive);
+    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> labelArray: "+labelArray);
+
     core.info("Validating the given string for non-inclusive language with regEx: "+regEx);
     var matchedNIL = stringToValidate.toLocaleLowerCase().match(regEx);
     
