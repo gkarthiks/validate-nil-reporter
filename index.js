@@ -36,7 +36,7 @@ try {
         core.info("Issue title: "+issueTitle)
 
         validateAndComment(issueTitle, regEx, issueAuthor, ISSUE_TITLE_CTX, labelArray, githubToken, eventName);
-        validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, "");
+        validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, eventName);
     }
 
 } catch (error) {
@@ -59,11 +59,9 @@ function validateAndComment(stringToValidate, regEx, issueAuthor, context, label
     if (matchedNIL != null && matchedNIL.length > 0) {
         var deDupeMatchedNIL = new Set(matchedNIL);
         core.info("Got the following non-inclusive language in the context: "+[...deDupeMatchedNIL]);
-        var bodyString = `Hi @`+issueAuthor.trim()+`, you have the following non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/
+        var bodyString = `Hi @`+issueAuthor.trim()+`, you have the following non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/. After reformatting the statement, please comment /validate to validate your statements.
 
-        `+[...deDupeMatchedNIL]+`
-        
-        After reformatting the statement, please comment /validate to validate your statements.`;
+        `+[...deDupeMatchedNIL];
         
         commentToIssue(bodyString, labelArray, githubToken)
     } else if (eventName.startsWith("issue_comment")) {
