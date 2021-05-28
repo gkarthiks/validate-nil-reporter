@@ -18,7 +18,7 @@ jobs:
           node-version: '12'
           check-latest: true
       - name: parsing from body of the issue
-        uses: gkarthiks/nil-issue-reporter@0.1.2
+        uses: ./
         id: parseissue
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

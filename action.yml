@@ -1,0 +1,19 @@
+name: 'NIL Reporter'
+description: 'Parses the isssue and scans for the non-inlcusive language and comments back'
+branding:
+  color: 'purple'
+  icon: 'user-plus'
+inputs:
+  nil-file:
+    description: 'A text(.txt) file with comma separated non-inclusive language'
+    required: true
+    default: 'nil.txt'
+  token:
+    description: Github token for octokit to comment back in the issue.
+    required: true
+  labels:
+    description: Comma separated labels to be attached for flagging as non-inclusive issue.
+    required: false
+runs:
+  using: 'node12'
+  main: 'index.js'
