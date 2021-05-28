@@ -15,6 +15,9 @@ try {
         var githubToken = core.getInput('token');
         var nilFileLoc = core.getInput("nil-file").trim();
         var commaSeperatedLbl = core.getInput("labels").trim();
+        core.info("=================================================");
+        core.info(commaSeperatedLbl);
+        core.info("===================================================================================================================================================");
         var labelArray = commaSeperatedStrToArray(commaSeperatedLbl);
         
         core.info("The NIL file picked up for comparative scan is from: "+nilFileLoc)
@@ -27,8 +30,8 @@ try {
         core.info("Issue number: "+issueNumber)
         core.info("Issue title: "+issueTitle)
 
-        validateAndComment(issueTitle, regEx, issueAuthor, "issue title", labelArray, githubToken);
-        validateAndComment(issueContext, regEx, issueAuthor, "issue description", labelArray, githubToken);
+        validateAndComment(issueTitle, regEx, issueAuthor, "issue title", labelArray, githubToken, eventName);
+        validateAndComment(issueContext, regEx, issueAuthor, "issue description", labelArray, githubToken, "");
     }
 
 } catch (error) {
@@ -37,7 +40,7 @@ try {
 
 
 // Validates the provided string for non-inclusive language
-function validateAndComment(stringToValidate, regEx, issueAuthor, context, labelArray, githubToken) {
+function validateAndComment(stringToValidate, regEx, issueAuthor, context, labelArray, githubToken, eventName) {
     core.info("Validating the given string for non-inclusive language with regEx: "+regEx);
     var matchedNIL = stringToValidate.toLocaleLowerCase().match(regEx);
     if (matchedNIL != null && matchedNIL.length > 0) {
@@ -45,8 +48,10 @@ function validateAndComment(stringToValidate, regEx, issueAuthor, context, label
         core.info("Got the following non-inclusive language in the context: "+[...deDupeMatchedNIL]);
         var bodyString = `Hi @`+issueAuthor.trim()+`, you have the following non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/
 
-        `+[...deDupeMatchedNIL];
+        `+[...deDupeMatchedNIL]+`. After reformatting the statement, please comment /validate to validate your statements.`;
         commentToIssue(bodyString, labelArray, githubToken)
+    } else if (eventName.startsWith("issue_comment")) {
+        removeLabel(labelArray)
     } else {
         core.info("Hurray! The content is completely inclusive!!!");
     }
@@ -66,18 +71,7 @@ function readFileFrom(filePath) {
 
 // Commenting back to issue with provided message
 function commentToIssue(body, labelArray, githubToken) {
-    try {
-        github.getOctokit(githubToken).rest.issues.addLabels({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
-            issue_number: github.context.issue.number,
-            labels: labelArray
-        });
-    } catch (e) {
-        console.error('Error occured while adding labels', e);
-        core.setFailed('Error occured while adding labels', e);
-    }
-
+    addLabel(body, labelArray, githubToken);
     try {
         github.getOctokit(githubToken).rest.issues.createComment({
             issue_number: github.context.issue.number,
@@ -94,4 +88,26 @@ function commentToIssue(body, labelArray, githubToken) {
 // Returns the comma seperated string into cleansed array of strings
 function commaSeperatedStrToArray(commaString) {
     return commaString.split(",").map(item => item.trim());
+}
+
+function removeLabel(labelArray) {
+
+}
+
+// Adds the specifies 
+function addLabel(body, labelArray, githubToken) {
+    if (Array.isArray(labelArray) && labelArray.length) {
+
+    }
+    try {
+        github.getOctokit(githubToken).rest.issues.addLabels({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            issue_number: github.context.issue.number,
+            labels: labelArray
+        });
+    } catch (e) {
+        console.error('Error occured while adding labels', e);
+        core.setFailed('Error occured while adding labels', e);
+    }
 }
