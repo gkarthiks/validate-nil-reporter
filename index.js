@@ -30,13 +30,17 @@ try {
 
         // Create RegEx for parsing the data and comparing the nil
         var nilWordArray = commaSeperatedStrToArray(nilFileData);
-        var regEx = new RegExp(nilWordArray.join('|'), 'gi');
+        if (nilWordArray.length > 0) {
+            commentToIssue("The non-inclusive word list is not defined. Please ask your admin to add the list of words to restrict.", labelArray, githubToken);
+        } else {
+            var regEx = new RegExp(nilWordArray.join('|'), 'gi');
 
-        core.info("Issue number: "+issueNumber)
-        core.info("Issue title: "+issueTitle)
-
-        validateAndComment(issueTitle, regEx, issueAuthor, ISSUE_TITLE_CTX, labelArray, githubToken, eventName);
-        validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, eventName);
+            core.info("Issue number: "+issueNumber)
+            core.info("Issue title: "+issueTitle)
+    
+            validateAndComment(issueTitle, regEx, issueAuthor, ISSUE_TITLE_CTX, labelArray, githubToken, eventName);
+            validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, eventName);
+        }
     }
 
 } catch (error) {
@@ -47,19 +51,13 @@ try {
 // Validates the provided string for non-inclusive language
 function validateAndComment(stringToValidate, regEx, issueAuthor, context, labelArray, githubToken, eventName) {
 
-    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> eventName: "+eventName);
-    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> context: "+context);
-    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> isDescInclusive: "+isDescInclusive);
-    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> isTitleInclusive: "+isTitleInclusive);
-    core.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> labelArray: "+labelArray);
-
     core.info("Validating the given string for non-inclusive language with regEx: "+regEx);
     var matchedNIL = stringToValidate.toLocaleLowerCase().match(regEx);
     
     if (matchedNIL != null && matchedNIL.length > 0) {
         var deDupeMatchedNIL = new Set(matchedNIL);
         core.info("Got the following non-inclusive language in the context: "+[...deDupeMatchedNIL]);
-        var bodyString = `Hi @`+issueAuthor.trim()+`, you have the following non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/. After reformatting the statement, please comment /validate to validate your statements.
+        var bodyString = `Hi @`+issueAuthor.trim()+`, you have the below mentioned non-inclusive language in the `+context+`, please rephrase the sentence with inclusive language. Refer https://inclusivenaming.org/language/word-list/. After reformatting the statement, please comment /validate to validate your statements.
 
         `+[...deDupeMatchedNIL];
         
