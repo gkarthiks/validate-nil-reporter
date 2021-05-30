@@ -31,6 +31,12 @@ try {
         // Create RegEx for parsing the data and comparing the nil
         var nilWordArray = commaSeperatedStrToArray(nilFileData);
         if (nilWordArray.length > 0) {
+
+            core.info("==========================================> nilWordArray.length: ", nilWordArray.length)
+            core.info("==========================================> nilWordArray: ", nilWordArray)
+            core.info("==========================================> nilFileData: ", nilFileData)
+
+
             var regEx = new RegExp(nilWordArray.join('|'), 'gi');
 
             core.info("Issue number: "+issueNumber)
