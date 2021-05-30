@@ -31,8 +31,6 @@ try {
         // Create RegEx for parsing the data and comparing the nil
         var nilWordArray = commaSeperatedStrToArray(nilFileData);
         if (nilWordArray.length > 0) {
-            commentToIssue("The non-inclusive word list is not defined. Please ask your admin to add the list of words to restrict.", labelArray, githubToken);
-        } else {
             var regEx = new RegExp(nilWordArray.join('|'), 'gi');
 
             core.info("Issue number: "+issueNumber)
@@ -40,6 +38,8 @@ try {
     
             validateAndComment(issueTitle, regEx, issueAuthor, ISSUE_TITLE_CTX, labelArray, githubToken, eventName);
             validateAndComment(issueContext, regEx, issueAuthor, ISSUE_DESC_CTX, labelArray, githubToken, eventName);
+        } else {
+            commentToIssue("The non-inclusive word list is not defined. Please ask your admin to add the list of words to restrict.", labelArray, githubToken);
         }
     }
 
